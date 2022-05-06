@@ -77,7 +77,21 @@ async function run() {
             const result = await productCollection.deleteOne(query);
             res.send(result);
         });
+        // My Product Collection API
 
+        app.get('/myproduct', verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
+            const email = req.query.email;
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const cursor = productCollection.find(query);
+                const myproduct = await cursor.toArray();
+                res.send(myproduct)
+            }
+            else{
+                res.status(403).send({message: 'forbidden access'})
+            }
+        })
         // Order Collection API
 
         app.get('/order', verifyJWT, async (req, res) => {
