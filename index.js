@@ -38,7 +38,7 @@ async function run() {
         const productCollection = client.db('ebazzar').collection('product');
         const orderCollection = client.db('ebazzar').collection('order');
 
-        // AUTH
+        // JWT 
         app.post('/login', async (req, res) => {
             const user = req.body;
             const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
@@ -47,7 +47,7 @@ async function run() {
             res.send({ accessToken });
         })
 
-        // productS API
+        // products API
         app.get('/product', async (req, res) => {
             const query = {};
             const cursor = productCollection.find(query);
@@ -63,22 +63,37 @@ async function run() {
             res.send(product);
         });
 
-        // POST
+        // POST product
         app.post('/product', async (req, res) => {
             const newproduct = req.body;
             const result = await productCollection.insertOne(newproduct);
             res.send(result);
         });
+          // update product
+          app.put('/product/:id', async(req, res) =>{
+            const id = req.params.id;
+            const updatedProduct = req.body;
+            const filter = {_id: ObjectId(id)};
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set:updatedProduct,
+                
+            };
+            const result = await productCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
 
-        // DELETE
+        })
+
+        // DELETE product
         app.delete('/product/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await productCollection.deleteOne(query);
             res.send(result);
         });
-        // My Product Collection API
 
+        
+        // My Product Collection API
         app.get('/myproduct', verifyJWT, async (req, res) => {
             const decodedEmail = req.decoded.email;
             const email = req.query.email;
@@ -92,8 +107,15 @@ async function run() {
                 res.status(403).send({message: 'forbidden access'})
             }
         })
+        
+              // DELETE order
+              app.delete('/order/:id', async (req, res) => {
+                const id = req.params.id;
+                const query = { _id: ObjectId(id) };
+                const result = await orderCollection.deleteOne(query);
+                res.send(result);
+            });
         // Order Collection API
-
         app.get('/order', verifyJWT, async (req, res) => {
             const decodedEmail = req.decoded.email;
             const email = req.query.email;
