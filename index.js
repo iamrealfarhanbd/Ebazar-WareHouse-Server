@@ -92,7 +92,7 @@ async function run() {
 
             const updateProduct = {
                 $set: {
-                    ...updatedProduct
+                    quantity: updatedQuantity
                 },
             };
 
