@@ -83,7 +83,25 @@ async function run() {
             res.send(result);
 
         })
+        app.put('/updateProduct/:id', async (req, res) => {
+            const updatedProduct = req.body;
+            const { updatedQuantity } = updatedProduct;
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const options = { upsert: true };
 
+            const updateProduct = {
+                $set: {
+                    quantity: updatedQuantity
+                },
+            };
+
+            const result = await productCollection.updateOne(query, updateProduct, options);
+            console.log(result);
+
+            res.send(result);
+
+        })
         // DELETE product
         app.delete('/product/:id', async (req, res) => {
             const id = req.params.id;
@@ -106,34 +124,6 @@ async function run() {
             else{
                 res.status(403).send({message: 'forbidden access'})
             }
-        })
-        
-              // DELETE order
-              app.delete('/order/:id', async (req, res) => {
-                const id = req.params.id;
-                const query = { _id: ObjectId(id) };
-                const result = await orderCollection.deleteOne(query);
-                res.send(result);
-            });
-        // Order Collection API
-        app.get('/order', verifyJWT, async (req, res) => {
-            const decodedEmail = req.decoded.email;
-            const email = req.query.email;
-            if (email === decodedEmail) {
-                const query = { email: email };
-                const cursor = orderCollection.find(query);
-                const orders = await cursor.toArray();
-                res.send(orders)
-            }
-            else{
-                res.status(403).send({message: 'forbidden access'})
-            }
-        })
-
-        app.post('/order', async (req, res) => {
-            const order = req.body;
-            const result = await orderCollection.insertOne(order);
-            res.send(result);
         })
 
     }
