@@ -109,7 +109,6 @@ async function run() {
             const result = await productCollection.deleteOne(query);
             res.send(result);
         });
-
         
         // My Product Collection API 
         app.get('/myproduct', verifyJWT, async (req, res) => {
